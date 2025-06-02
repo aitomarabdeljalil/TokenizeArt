@@ -1,0 +1,12 @@
+https://cloud.google.com/application/web3/faucet/ethereum/sepolia
+https://app.pinata.cloud/ipfs/files
+
+json example
+{
+  "name": "42NFTart #0",
+  "description": "This is a 42 nft art.",
+  "image": "ipfs://bafkreigrotjy7q7kxxfg57tgbykutarlceqwre6ekcwoup6oxkd6vpexue",
+  "attributes": [{ "trait_type": "Artist", "value": "aait-oma" }]
+}
+
+chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#
