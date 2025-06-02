@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mint MyNFT</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+</head>
+<body>
+  <h1>Mint an NFT</h1>
+  <button id="connectWallet">Connect Wallet</button>
+  <br><br>
+  <input type="text" id="tokenURI" placeholder="Enter Token URI (e.g., IPFS link)" size="50"/>
+  <br><br>
+  <button id="mintNFT" disabled>Mint NFT</button>
+
+  <script>
+    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+    const contractABI = [
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "tokenURI",
+              "type": "string"
+            }
+          ],
+          "name": "mintNFT",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+    ];
+
+    let provider;
+    let signer;
+    let contract;
+
+    document.getElementById("connectWallet").onclick = async () => {
+      if (window.ethereum) {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(contractAddress, contractABI, signer);
+        document.getElementById("mintNFT").disabled = false;
+        alert("Wallet connected!");
+      } else {
+        alert("Please install MetaMask to use this App.");
+      }
+    };
+
+    document.getElementById("mintNFT").onclick = async () => {
+      const tokenURI = document.getElementById("tokenURI").value.trim();
+      if (!tokenURI) return alert("Please enter a valid token URI");
+
+      try {
+        const tx = await contract.mintNFT(tokenURI);
+        await tx.wait();
+        alert("NFT Minted Successfully!");
+      } catch (error) {
+        alert("Error minting NFT: " + error.message);
+      }
+    };
+  </script>
+</body>
+</html>
