@@ -1,19 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Mint MyNFT</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokenizeArt - Mint Your NFT</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Ethers.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #1e3a8a, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial', sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <h1>Mint an NFT</h1>
-  <button id="connectWallet">Connect Wallet</button>
-  <br><br>
-  <input type="text" id="tokenURI" placeholder="Enter Token URI (e.g., IPFS link)" size="50"/>
-  <br><br>
-  <button id="mintNFT" disabled>Mint NFT</button>
+  <div class="container mx-auto p-6 max-w-lg bg-white rounded-xl shadow-2xl">
+    <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">TokenizeArt NFT Minter</h1>
+    
+    <!-- Wallet Connection Section -->
+    <div class="mb-6 text-center">
+      <button id="connectWallet" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+        Connect Wallet
+      </button>
+      <p id="walletAddress" class="mt-2 text-gray-600">Wallet not connected</p>
+    </div>
+    
+    <!-- Minting Form -->
+    <div class="mb-6">
+      <label for="tokenURI" class="block text-sm font-medium text-gray-700">Token URI (e.g., IPFS link)</label>
+      <input id="tokenURI" type="text" placeholder="ipfs://<hash>/metadata.json" 
+             class="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button id="mintNFT" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300" disabled>
+        Mint NFT
+      </button>
+    </div>
+    
+    <!-- Token Counter -->
+    <div class="mb-6 text-center">
+      <p class="text-gray-600">Total NFTs Minted: <span id="tokenCounter">0</span></p>
+    </div>
+    
+    <!-- Status Messages -->
+    <div id="status" class="text-center text-sm text-gray-600"></div>
+  </div>
 
   <script>
-    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+    // Contract details
+    const contractAddress = "YOUR_CONTRACT_ADDRESS"; // Replace with your deployed contract address
     const contractABI = [
         {
           "inputs": [
@@ -36,35 +75,91 @@
         },
     ];
 
-    let provider;
-    let signer;
-    let contract;
+    // DOM elements
+    const connectWalletBtn = document.getElementById('connectWallet');
+    const walletAddressEl = document.getElementById('walletAddress');
+    const tokenURIInput = document.getElementById('tokenURI');
+    const mintNFTBtn = document.getElementById('mintNFT');
+    const tokenCounterEl = document.getElementById('tokenCounter');
+    const statusEl = document.getElementById('status');
 
-    document.getElementById("connectWallet").onclick = async () => {
+    let provider, signer, contract;
+
+    // Initialize contract and update token counter
+    async function initContract() {
       if (window.ethereum) {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
         provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        contract = new ethers.Contract(contractAddress, contractABI, signer);
-        document.getElementById("mintNFT").disabled = false;
-        alert("Wallet connected!");
+        contract = new ethers.Contract(contractAddress, contractABI, provider);
+        updateTokenCounter();
       } else {
-        alert("Please install MetaMask to use this App.");
+        statusEl.textContent = 'Please install MetaMask to use this dApp.';
+        statusEl.classList.add('text-red-500');
       }
-    };
+    }
 
-    document.getElementById("mintNFT").onclick = async () => {
-      const tokenURI = document.getElementById("tokenURI").value.trim();
-      if (!tokenURI) return alert("Please enter a valid token URI");
+    // Connect wallet
+    async function connectWallet() {
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        signer = provider.getSigner();
+        const address = await signer.getAddress();
+        walletAddressEl.textContent = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
+        walletAddressEl.classList.add('text-green-500');
+        connectWalletBtn.textContent = 'Wallet Connected';
+        connectWalletBtn.disabled = true;
+        mintNFTBtn.disabled = false;
+        contract = contract.connect(signer);
+        statusEl.textContent = 'Wallet connected successfully!';
+        statusEl.classList.remove('text-red-500');
+        statusEl.classList.add('text-green-500');
+      } catch (error) {
+        statusEl.textContent = `Error connecting wallet: ${error.message}`;
+        statusEl.classList.add('text-red-500');
+      }
+    }
+
+    // Update token counter
+    async function updateTokenCounter() {
+      try {
+        const count = await contract.tokenCounter();
+        tokenCounterEl.textContent = count.toString();
+      } catch (error) {
+        statusEl.textContent = `Error fetching token counter: ${error.message}`;
+        statusEl.classList.add('text-red-500');
+      }
+    }
+
+    // Mint NFT
+    async function mintNFT() {
+      const tokenURI = tokenURIInput.value.trim();
+      if (!tokenURI) {
+        statusEl.textContent = 'Please enter a valid token URI.';
+        statusEl.classList.add('text-red-500');
+        return;
+      }
 
       try {
+        statusEl.textContent = 'Minting NFT... Please confirm in MetaMask.';
+        statusEl.classList.remove('text-red-500');
         const tx = await contract.mintNFT(tokenURI);
+        statusEl.textContent = 'Transaction sent. Waiting for confirmation...';
         await tx.wait();
-        alert("NFT Minted Successfully!");
+        statusEl.textContent = `NFT minted successfully! Token ID: ${await contract.tokenCounter() - 1}`;
+        statusEl.classList.add('text-green-500');
+        tokenURIInput.value = '';
+        updateTokenCounter();
       } catch (error) {
-        alert("Error minting NFT: " + error.message);
+        statusEl.textContent = `Error minting NFT: ${error.message}`;
+        statusEl.classList.add('text-red-500');
       }
-    };
+    }
+
+    // Event listeners
+    connectWalletBtn.addEventListener('click', connectWallet);
+    mintNFTBtn.addEventListener('click', mintNFT);
+
+    // Initialize on page load
+    window.addEventListener('load', initContract);
   </script>
 </body>
 </html>
