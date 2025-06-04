@@ -1,165 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TokenizeArt - Mint Your NFT</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Ethers.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <style>
-    body {
-      background: linear-gradient(to bottom right, #1e3a8a, #7c3aed);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Arial', sans-serif;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TokenizeArt NFT Minter</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container mx-auto p-6 max-w-lg bg-white rounded-xl shadow-2xl">
-    <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">TokenizeArt NFT Minter</h1>
-    
-    <!-- Wallet Connection Section -->
-    <div class="mb-6 text-center">
-      <button id="connectWallet" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
-        Connect Wallet
-      </button>
-      <p id="walletAddress" class="mt-2 text-gray-600">Wallet not connected</p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-6 text-center">TokenizeArt NFT Minter</h1>
+        <div class="space-y-4">
+            <div>
+                <button id="connect-wallet" class="w-full bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">Connect Wallet</button>
+                <p id="wallet-status" class="mt-2 text-center text-sm text-gray-600">Wallet not connected</p>
+            </div>
+            <div>
+                <label for="nft-name" class="block text-sm font-medium text-gray-700">NFT Name</label>
+                <input id="nft-name" type="text" class="mt-1 w-full p-2 border rounded-md" placeholder="NFT Name">
+            </div>
+            <div>
+                <label for="nft-description" class="block text-sm font-medium text-gray-700">NFT Description</label>
+                <textarea id="nft-description" class="mt-1 w-full p-2 border rounded-md" placeholder="NFT Description"></textarea>
+            </div>
+            <div>
+                <label for="attributes" class="block text-sm font-medium text-gray-700">Artist Name</label>
+                <input id="attributes" type="text" class="mt-1 w-full p-2 border rounded-md" placeholder="Enter artist name">
+            </div>
+            <div>
+                <label for="svg-text" class="block text-sm font-medium text-gray-700">SVG Text</label>
+                <input id="svg-text" type="text" class="mt-1 w-full p-2 border rounded-md" placeholder="Enter text for NFT">
+            </div>
+            <div>
+                <button id="mint-nft" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">Mint NFT</button>
+            </div>
+            <p id="status" class="mt-4 text-center text-sm text-gray-600"></p>
+        </div>
+        <div class="mt-6 text-center">
+            <p id="token-counter" class="text-sm font-medium text-gray-700">Total NFTs Minted: 0</p>
+        </div>
     </div>
-    
-    <!-- Minting Form -->
-    <div class="mb-6">
-      <label for="tokenURI" class="block text-sm font-medium text-gray-700">Token URI (e.g., IPFS link)</label>
-      <input id="tokenURI" type="text" placeholder="ipfs://<hash>/metadata.json" 
-             class="mt-1 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-      <button id="mintNFT" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300" disabled>
-        Mint NFT
-      </button>
-    </div>
-    
-    <!-- Token Counter -->
-    <div class="mb-6 text-center">
-      <p class="text-gray-600">Total NFTs Minted: <span id="tokenCounter">0</span></p>
-    </div>
-    
-    <!-- Status Messages -->
-    <div id="status" class="text-center text-sm text-gray-600"></div>
-  </div>
 
-  <script>
-    // Contract details
-    const contractAddress = "YOUR_CONTRACT_ADDRESS"; // Replace with your deployed contract address
-    const contractABI = [
-        {
-          "inputs": [
+    <script>
+        // Smart contract ABI
+        const contractABI = [
             {
-              "internalType": "string",
-              "name": "tokenURI",
-              "type": "string"
-            }
-          ],
-          "name": "mintNFT",
-          "outputs": [
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "tokenURI",
+                        "type": "string"
+                    }
+                ],
+                "name": "mintNFT",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
+                "inputs": [],
+                "name": "tokenCounter",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenURI",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
             }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-    ];
+        ];
 
-    // DOM elements
-    const connectWalletBtn = document.getElementById('connectWallet');
-    const walletAddressEl = document.getElementById('walletAddress');
-    const tokenURIInput = document.getElementById('tokenURI');
-    const mintNFTBtn = document.getElementById('mintNFT');
-    const tokenCounterEl = document.getElementById('tokenCounter');
-    const statusEl = document.getElementById('status');
+        // Replace with your deployed contract address
+        const contractAddress = "YOUR_CONTRACT_ADDRESS";
+        // Pinata API credentials (replace with your own)
+        const PINATA_API_KEY = "YOUR_PINATA_API";
+        const PINATA_SECRET_API_KEY = "YOUR_PINATA_SECRET_KEY";
 
-    let provider, signer, contract;
+        // DOM elements
+        const connectWalletBtn = document.getElementById("connect-wallet");
+        const walletStatusEl = document.getElementById("wallet-status");
+        const statusEl = document.getElementById("status");
+        const tokenCounterEl = document.getElementById("token-counter");
 
-    // Initialize contract and update token counter
-    async function initContract() {
-      if (window.ethereum) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        contract = new ethers.Contract(contractAddress, contractABI, provider);
+        // Connect to MetaMask
+        async function connectWallet() {
+            if (!window.ethereum) {
+                statusEl.textContent = "MetaMask is not installed. Please install it to proceed.";
+                statusEl.classList.add('text-red-500');
+                return null;
+            }
+            try {
+                // Request account access
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                // Check network (e.g., Sepolia chainId is 11155111)
+                const network = await provider.getNetwork();
+                const desiredChainId = 11155111; // Sepolia testnet
+                if (network.chainId !== desiredChainId) {
+                    statusEl.textContent = "Please switch to the Sepolia testnet in MetaMask.";
+                    statusEl.classList.add('text-red-500');
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x' + desiredChainId.toString(16) }]
+                        });
+                    } catch (switchError) {
+                        statusEl.textContent = "Failed to switch network. Please select Sepolia in MetaMask.";
+                        statusEl.classList.add('text-red-500');
+                        return null;
+                    }
+                }
+                const signer = provider.getSigner();
+                const address = await signer.getAddress();
+                walletStatusEl.textContent = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
+                walletStatusEl.classList.remove('text-gray-600');
+                walletStatusEl.classList.add('text-green-500');
+                await updateTokenCounter(provider);
+                return provider;
+            } catch (error) {
+                console.error("Wallet connection failed:", error);
+                statusEl.textContent = `Wallet connection failed: ${error.message || 'User denied access'}`;
+                statusEl.classList.add('text-red-500');
+                return null;
+            }
+        }
+
+        // Mock IPFS upload (replace with actual IPFS service like Pinata)
+        async function uploadToIPFS(data) {
+            statusEl.textContent = "Uploading metadata to IPFS via Pinata...";
+            try {
+                const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+                const response = await axios.post(url, data, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "pinata_api_key": PINATA_API_KEY,
+                        "pinata_secret_api_key": PINATA_SECRET_API_KEY
+                    }
+                });
+                const ipfsHash = response.data.IpfsHash;
+                console.log("Uploaded to IPFS:", ipfsHash);
+                return `https://ipfs.io/ipfs/${ipfsHash}`;
+            } catch (error) {
+                console.error("IPFS upload failed:", error);
+                throw new Error("IPFS upload failed: " + (error.response?.data?.error || error.message));
+            }
+        }
+
+        // Convert text to SVG
+        function textToSVG(text) {
+            // Sanitize text to prevent SVG injection
+            const sanitizedText = text.replace(/[<>]/g, '');
+            return `
+                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100%" height="100%" fill="white"/>
+                    <text x="50%" y="50%" font-family="Arial" font-size="20" fill="black" text-anchor="middle" dominant-baseline="middle">
+                        ${sanitizedText}
+                    </text>
+                </svg>`;
+        }
+
+        // Convert SVG to base64
+        function svgToBase64(svgText) {
+            return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgText)));
+        }
+
+        // Update token counter
+        async function updateTokenCounter(provider) {
+            if (!provider) {
+                provider = await connectWallet();
+                if (!provider) return;
+            }
+            const contract = new ethers.Contract(contractAddress, contractABI, provider);
+            try {
+                const counter = await contract.tokenCounter();
+                tokenCounterEl.textContent = `Total NFTs Minted: ${counter.toNumber()}`;
+            } catch (error) {
+                console.error("Error fetching token counter:", error);
+                tokenCounterEl.textContent = "Total NFTs Minted: Error";
+            }
+        }
+
+        // Mint NFT
+        async function mintNFT() {
+            const textInput = document.getElementById("svg-text").value;
+            const name = document.getElementById("nft-name").value;
+            const description = document.getElementById("nft-description").value;
+            const attributeValue = document.getElementById("attributes").value;
+            const statusEl = document.getElementById("status");
+
+            if (!name || !description || !textInput) {
+                statusEl.textContent = 'Please enter a valid name, description, and text for SVG.';
+                statusEl.classList.add('text-red-500');
+                return;
+            }
+
+            try {
+                // Generate attributes array
+                const attributes = attributeValue ? [{ trait_type: "Artist", value: attributeValue }] : [];
+
+                // Generate SVG from text
+                const svgText = textToSVG(textInput);
+
+                // Create metadata
+                const metadata = {
+                    name: name,
+                    description: description,
+                    image: svgToBase64(svgText),
+                    attributes: attributes
+                };
+                console.log("Metadata:", metadata);
+
+                // Upload metadata to IPFS
+                const tokenURI = await uploadToIPFS(metadata);
+                statusEl.textContent = "Uploading metadata to IPFS...";
+                statusEl.classList.remove('text-red-500');
+
+                // Connect to wallet
+                const provider = await connectWallet();
+                if (!provider) {
+                    statusEl.textContent = "Wallet connection failed.";
+                    statusEl.classList.add('text-red-500');
+                    return;
+                }
+
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+                // Mint NFT
+                statusEl.textContent = "Minting NFT... Please confirm in MetaMask.";
+                statusEl.classList.remove('text-red-500');
+                const tx = await contract.mintNFT(tokenURI);
+                statusEl.textContent = 'Transaction sent. Waiting for confirmation...';
+                await tx.wait();
+                const tokenId = (await contract.tokenCounter()).toNumber() - 1;
+                statusEl.textContent = `NFT minted successfully! Token ID: ${tokenId}`;
+                statusEl.classList.add('text-green-500');
+                document.getElementById("svg-text").value = '';
+                updateTokenCounter(provider);
+            } catch (error) {
+                console.error("Error minting NFT:", error);
+                statusEl.textContent = `Error minting NFT: ${error.message}`;
+                statusEl.classList.add('text-red-500');
+            }
+        }
+
+        // Event listeners
+        connectWalletBtn.addEventListener("click", connectWallet);
+        document.getElementById("mint-nft").addEventListener("click", mintNFT);
+
+        // Initial token counter update
         updateTokenCounter();
-      } else {
-        statusEl.textContent = 'Please install MetaMask to use this dApp.';
-        statusEl.classList.add('text-red-500');
-      }
-    }
-
-    // Connect wallet
-    async function connectWallet() {
-      try {
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        signer = provider.getSigner();
-        const address = await signer.getAddress();
-        walletAddressEl.textContent = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
-        walletAddressEl.classList.add('text-green-500');
-        connectWalletBtn.textContent = 'Wallet Connected';
-        connectWalletBtn.disabled = true;
-        mintNFTBtn.disabled = false;
-        contract = contract.connect(signer);
-        statusEl.textContent = 'Wallet connected successfully!';
-        statusEl.classList.remove('text-red-500');
-        statusEl.classList.add('text-green-500');
-      } catch (error) {
-        statusEl.textContent = `Error connecting wallet: ${error.message}`;
-        statusEl.classList.add('text-red-500');
-      }
-    }
-
-    // Update token counter
-    async function updateTokenCounter() {
-      try {
-        const count = await contract.tokenCounter();
-        tokenCounterEl.textContent = count.toString();
-      } catch (error) {
-        statusEl.textContent = `Error fetching token counter: ${error.message}`;
-        statusEl.classList.add('text-red-500');
-      }
-    }
-
-    // Mint NFT
-    async function mintNFT() {
-      const tokenURI = tokenURIInput.value.trim();
-      if (!tokenURI) {
-        statusEl.textContent = 'Please enter a valid token URI.';
-        statusEl.classList.add('text-red-500');
-        return;
-      }
-
-      try {
-        statusEl.textContent = 'Minting NFT... Please confirm in MetaMask.';
-        statusEl.classList.remove('text-red-500');
-        const tx = await contract.mintNFT(tokenURI);
-        statusEl.textContent = 'Transaction sent. Waiting for confirmation...';
-        await tx.wait();
-        statusEl.textContent = `NFT minted successfully! Token ID: ${await contract.tokenCounter() - 1}`;
-        statusEl.classList.add('text-green-500');
-        tokenURIInput.value = '';
-        updateTokenCounter();
-      } catch (error) {
-        statusEl.textContent = `Error minting NFT: ${error.message}`;
-        statusEl.classList.add('text-red-500');
-      }
-    }
-
-    // Event listeners
-    connectWalletBtn.addEventListener('click', connectWallet);
-    mintNFTBtn.addEventListener('click', mintNFT);
-
-    // Initialize on page load
-    window.addEventListener('load', initContract);
-  </script>
+    </script>
 </body>
 </html>

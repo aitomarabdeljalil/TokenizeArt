@@ -69,7 +69,7 @@ The token URI should point to a JSON file with the following structure:
   "description": "A unique digital artwork.",
   "image": "ipfs://<hash>/image.png",
   "attributes": [
-    { "trait_type": "Artist", "value": "John Doe" },
+    { "trait_type": "Artist", "value": "YOUR_LOGIN" },
   ]
 }
 ```
