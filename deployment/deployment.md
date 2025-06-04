@@ -57,13 +57,24 @@ This guide will walk you through deploying the `TokenizeArt` ERC721 contract usi
 
 ### 2. Call `mintNFT`
 
-* Enter a token URI (e.g., a URL to a JSON file with NFT metadata)
-  Example: `https://ipfs.io/ipfs/Qm.../metadata.json`
-* Click **transact**
-* Confirm the MetaMask transaction
+- **Standard Minting**:
+
+  - Enter a token URI (e.g., a URL to a JSON file with NFT metadata)
+    Example: `https://ipfs.io/ipfs/Qm.../metadata.json`
+  - Click **transact**
+  - Confirm the MetaMask transaction
+
+- **Bonus: On-Chain Storage**:
+
+  - Use `storeMetadata` to save NFT name, description, artist, and SVG data on-chain.
+  - Input: NFT name (include "42"), description, artist name (your login), and SVG string.
+  - Click **transact** and confirm in MetaMask.
+  - Retrieve on-chain data with `getMetadata` using the token ID.
 
 ### 3. View Your Token
 
+* Use `tokenURI(tokenId)` to get the metadata URI (if not using on-chain storage)
+* Use `getMetadata(tokenId)` for on-chain data.
 * You can now view your minted NFT on testnet explorers or tools like [OpenSea testnet](https://testnets.opensea.io/)
 
 ---

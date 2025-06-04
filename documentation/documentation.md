@@ -18,6 +18,9 @@
 - **Token Counter**: Tracks the total number of minted NFTs and assigns incremental token IDs.
 - **Ownership**: Inherits `Ownable`, allowing the contract owner to perform restricted actions (though no owner-only functions are currently implemented).
 - **Metadata Storage**: Uses `ERC721URIStorage` to store token URIs, linking each NFT to its metadata.
+- **Bonus**:
+  - Store and retrieve metadata and SVG image data on-chain.
+  - Graphical interface in `code/website/index.html` for easy minting.
 
 ## State Variables
 - `tokenCounter` (`uint256`, public): Tracks the total number of minted tokens and provides the next token ID.
@@ -51,7 +54,7 @@
 
 ## Usage
 1. **Deploy the Contract**:
-   - Deploy using an Ethereum development environment like Remix, Hardhat, or Foundry.
+   - Deploy using an Ethereum development environment like Remix, Hardhat, or Foundry (see `deployment/deployment.md`).
    - Ensure OpenZeppelin dependencies are available.
 2. **Mint NFTs**:
    - Call `mintNFT` with a valid token URI (e.g., `ipfs://<hash>/metadata.json`).
@@ -65,7 +68,7 @@
 The token URI should point to a JSON file with the following structure:
 ```json
 {
-  "name": "Art Piece #1",
+  "name": "Art 42 Piece",
   "description": "A unique digital artwork.",
   "image": "ipfs://<hash>/image.png",
   "attributes": [
@@ -79,6 +82,10 @@ The token URI should point to a JSON file with the following structure:
 - **Token URI Immutability**: Once set, the token URI cannot be changed. Ensure the URI is correct and hosted on a reliable service (e.g., IPFS).
 - **Gas Costs**: Minting and storing URIs on-chain can be gas-intensive. Optimize metadata storage if needed.
 - **Ownership**: The `Ownable` contract allows the owner to transfer ownership or renounce it, but no owner-specific functions are currently implemented.
+
+## Bonus Part
+- **Beautiful NFT**: SVG-based, includes "42", styled in the DApp UI.
+- **Graphical Interface**: `code/website/index.html` lets users input data and mint via a browser.
 
 ## Future Improvements
 - Add a maximum supply limit for NFTs.
