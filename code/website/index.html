@@ -49,18 +49,27 @@
                 "inputs": [
                     {
                         "internalType": "string",
-                        "name": "tokenURI",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_svgText",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_artistName",
                         "type": "string"
                     }
                 ],
-                "name": "mintNFT",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
+                "name": "mintNFTOnChain",
+                "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
             },
@@ -99,10 +108,7 @@
         ];
 
         // Replace with your deployed contract address
-        const contractAddress = "YOUR_CONTRACT_ADDRESS";
-        // Pinata API credentials (replace with your own)
-        const PINATA_API_KEY = "YOUR_PINATA_API";
-        const PINATA_SECRET_API_KEY = "YOUR_PINATA_SECRET_KEY";
+        const contractAddress = "0x16ed64C5F86Fd6079EB7Cc97328e2336D85e95c3";
 
         // DOM elements
         const connectWalletBtn = document.getElementById("connect-wallet");
@@ -153,45 +159,6 @@
             }
         }
 
-        // Mock IPFS upload (replace with actual IPFS service like Pinata)
-        async function uploadToIPFS(data) {
-            statusEl.textContent = "Uploading metadata to IPFS via Pinata...";
-            try {
-                const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
-                const response = await axios.post(url, data, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "pinata_api_key": PINATA_API_KEY,
-                        "pinata_secret_api_key": PINATA_SECRET_API_KEY
-                    }
-                });
-                const ipfsHash = response.data.IpfsHash;
-                console.log("Uploaded to IPFS:", ipfsHash);
-                return `https://ipfs.io/ipfs/${ipfsHash}`;
-            } catch (error) {
-                console.error("IPFS upload failed:", error);
-                throw new Error("IPFS upload failed: " + (error.response?.data?.error || error.message));
-            }
-        }
-
-        // Convert text to SVG
-        function textToSVG(text) {
-            // Sanitize text to prevent SVG injection
-            const sanitizedText = text.replace(/[<>]/g, '');
-            return `
-                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100%" height="100%" fill="white"/>
-                    <text x="50%" y="50%" font-family="Arial" font-size="20" fill="black" text-anchor="middle" dominant-baseline="middle">
-                        ${sanitizedText}
-                    </text>
-                </svg>`;
-        }
-
-        // Convert SVG to base64
-        function svgToBase64(svgText) {
-            return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgText)));
-        }
-
         // Update token counter
         async function updateTokenCounter(provider) {
             if (!provider) {
@@ -223,26 +190,6 @@
             }
 
             try {
-                // Generate attributes array
-                const attributes = attributeValue ? [{ trait_type: "Artist", value: attributeValue }] : [];
-
-                // Generate SVG from text
-                const svgText = textToSVG(textInput);
-
-                // Create metadata
-                const metadata = {
-                    name: name,
-                    description: description,
-                    image: svgToBase64(svgText),
-                    attributes: attributes
-                };
-                console.log("Metadata:", metadata);
-
-                // Upload metadata to IPFS
-                const tokenURI = await uploadToIPFS(metadata);
-                statusEl.textContent = "Uploading metadata to IPFS...";
-                statusEl.classList.remove('text-red-500');
-
                 // Connect to wallet
                 const provider = await connectWallet();
                 if (!provider) {
@@ -254,10 +201,11 @@
                 const signer = provider.getSigner();
                 const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-                // Mint NFT
-                statusEl.textContent = "Minting NFT... Please confirm in MetaMask.";
+                // Call contract to mint NFT
+                statusEl.textContent = "Minting NFT on-chain... Please confirm in MetaMask.";
                 statusEl.classList.remove('text-red-500');
-                const tx = await contract.mintNFT(tokenURI);
+
+                const tx = await contract.mintNFTOnChain(name, description, textInput, attributeValue);
                 statusEl.textContent = 'Transaction sent. Waiting for confirmation...';
                 await tx.wait();
                 const tokenId = (await contract.tokenCounter()).toNumber() - 1;

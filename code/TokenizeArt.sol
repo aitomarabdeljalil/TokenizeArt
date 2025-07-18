@@ -46,7 +46,7 @@ contract TokenizeArt is ERC721URIStorage , Ownable {
      *
      * Emits a Transfer event from the zero address to the caller.
      */
-    function mintNFT(string memory tokenURI) external returns (uint256) {
+    function mintNFT(string memory tokenURI) onlyOwner external returns (uint256) {
         uint256 newItemId = tokenCounter;
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);
