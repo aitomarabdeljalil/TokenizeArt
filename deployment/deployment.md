@@ -69,7 +69,6 @@ This guide will walk you through deploying the `TokenizeArt` ERC721 contract usi
   - Use `storeMetadata` to save NFT name, description, artist, and SVG data on-chain.
   - Input: NFT name (include "42"), description, artist name (your login), and SVG string.
   - Click **transact** and confirm in MetaMask.
-  - Retrieve on-chain data with `getMetadata` using the token ID.
 
 ### 3. View Your Token
 

@@ -1,0 +1,6 @@
+{
+    "name": "42NFTart #2",
+    "description": "This is a 42 nft art.",
+    "image": "ipfs://bafkreigrotjy7q7kxxfg57tgbykutarlceqwre6ekcwoup6oxkd6vpexue",
+    "attributes": [{ "trait_type": "Artist", "value": "aait-oma" }]
+  }

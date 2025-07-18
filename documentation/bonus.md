@@ -1,7 +1,3 @@
-Here's a detailed `README.md` file that explains your `TokenizeArt` smart contract, including how it works, what it's for, and how developers can interact with it.
-
----
-
 ## 🖼️ TokenizeArt – On-Chain NFT SVG Generator
 
 ### Overview
@@ -157,13 +153,3 @@ await contract.mintNFTOnChain(
 
 MIT
 
----
-
-### 💡 Notes
-
-* This contract stores only **one metadata struct at a time**, which is overwritten at every mint. While it works for sequential minting, you could improve it by storing metadata per token ID if needed.
-* On-chain SVG makes your NFTs fully decentralized — no reliance on IPFS or external files.
-
----
-
-Let me know if you'd like a version with deployment instructions, Truffle/Hardhat setup, or frontend integration examples.
