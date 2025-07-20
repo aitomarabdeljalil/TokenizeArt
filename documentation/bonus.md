@@ -146,10 +146,3 @@ await contract.mintNFTOnChain(
   "Alice"
 );
 ```
-
----
-
-### 📝 License
-
-MIT
-

@@ -84,7 +84,6 @@ The token URI should point to a JSON file with the following structure:
 - **Ownership**: The `Ownable` contract allows the owner to transfer ownership or renounce it, but no owner-specific functions are currently implemented.
 
 ## Bonus Part
-- **Beautiful NFT**: SVG-based, includes "42", styled in the DApp UI.
 - **Graphical Interface**: `code/website/index.html` lets users input data and mint via a browser.
 
 ## Future Improvements
@@ -98,6 +97,3 @@ The token URI should point to a JSON file with the following structure:
 - **Testnets**: Deploy on testnets like Sepolia or Goerli for testing.
 - **Mainnet**: Deploy on Ethereum mainnet for production, ensuring sufficient gas and secure metadata hosting.
 - **Tools**: Use Remix, Hardhat, or Foundry for deployment and testing.
-
-## License
-The `TokenizeArt` contract is licensed under the MIT License.

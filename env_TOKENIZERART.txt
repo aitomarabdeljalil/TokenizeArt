@@ -1,3 +1,0 @@
-// Pinata API credentials (replace with your own)
-const PINATA_API_KEY = "cd30b6a183ab706b05b6";
-const PINATA_SECRET_API_KEY = "5856c189920ed23f287668cbdc277894c0b1f92885bf124da316d5cdea132152";
